@@ -1,0 +1,277 @@
+/*
+ * JBoss, Home of Professional Open Source.
+ * Copyright 2013, Red Hat Middleware LLC, and individual contributors
+ * as indicated by the @author tags. See the copyright.txt file in the
+ * distribution for a full listing of individual contributors.
+ *
+ * This is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation; either version 2.1 of
+ * the License, or (at your option) any later version.
+ *
+ * This software is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this software; if not, write to the Free
+ * Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA
+ * 02110-1301 USA, or see the FSF site: http://www.fsf.org.
+ */
+package org.jboss.qa.management.ws.cli;
+
+import static org.junit.Assert.assertEquals;
+
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import javax.xml.namespace.QName;
+import javax.xml.ws.Service;
+
+import org.apache.commons.lang.StringUtils;
+import org.jboss.arquillian.container.test.api.RunAsClient;
+import org.jboss.arquillian.junit.Arquillian;
+import org.jboss.as.cli.CommandLineException;
+import org.jboss.qa.management.TestConstants;
+import org.jboss.qa.management.ws.BaseDeployment.WarDeployment;
+import org.jboss.shrinkwrap.api.asset.StringAsset;
+import org.jboss.shrinkwrap.api.spec.WebArchive;
+import org.junit.After;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.Timeout;
+import org.junit.runner.RunWith;
+
+/**
+ *
+ * see https://docspace.corp.redhat.com/docs/DOC-152480
+ *
+ */
+
+@RunWith(Arquillian.class)
+@RunAsClient
+public /*FIXME psakar abstract*/ class CLIWebServicesEndPointConfigIT extends CLITestUtils
+{
+
+   static final String NAME = "CLIWebServicesEndPointConfigIT";
+   static final String NAME2 = "CLIWebServicesEndPointConfigIT2";
+
+   protected static final String SOAP_ADDRESS_LOCATION_PREFIX = "<soap:address location=\"";
+   private final WebArchive war;
+   private final WebArchive anotherWar;
+
+   private final String verifyConfigurationCommand;
+   private final String changeConfigurationCommand;
+   private final String resetConfigurationCommand;
+
+   // setting timeout for each test
+   @Rule
+   public Timeout timeout = new Timeout(TestConstants.SHORT_TEST_TIMEOUT);
+
+   public CLIWebServicesEndPointConfigIT() {
+      this.verifyConfigurationCommand = "/subsystem=webservices/endpoint-config=Recording-Endpoint-Config/pre-handler-chain=recording-handlers:read-resource";
+      this.changeConfigurationCommand = "/subsystem=webservices/endpoint-config=My-Endpoint-Config:add";
+      this.resetConfigurationCommand = "/subsystem=webservices/endpoint-config=My-Endpoint-Config:remove";
+      this.war = createWarDeployment(NAME + WAR_EXTENSTION).createArchive();
+      this.anotherWar = createWarDeployment(NAME2 + WAR_EXTENSTION).createArchive();
+   }
+
+   static WarDeployment createWarDeployment(String name) {
+      return new WarDeployment(name) { {
+         archive
+            .setManifest(new StringAsset("Manifest-Version: 1.0\n"
+                  + "Dependencies: org.jboss.ws.cxf.jbossws-cxf-client\n"))
+            .addClass(org.jboss.qa.management.ws.cli.AnnotatedServiceWithMyEndpointConfigIface.class)
+            .addClass(org.jboss.qa.management.ws.cli.AnnotatedServiceWithMyEndpointConfigImpl.class)
+            ;
+      } };
+   }
+
+
+/*
+   public CLIWebServicesEndPointConfigIT(String verifyConfigurationCommand, String changeConfigurationCommand, String resetConfigurationCommand, WebArchive war, WebArchive anotherWar)
+   {
+      this.verifyConfigurationCommand = verifyConfigurationCommand;
+      this.changeConfigurationCommand = changeConfigurationCommand;
+      this.resetConfigurationCommand = resetConfigurationCommand;
+      this.war = war;
+      this.anotherWar = anotherWar;
+   }
+*/
+   @After
+   public void after() throws Exception {
+      info("After");
+      undeployQuietly(war.getName());
+      undeployQuietly(anotherWar.getName());
+      resetConfiguration();
+      reloadServer();
+   }
+
+   protected void resetConfiguration() throws IOException, CommandLineException
+   {
+      executeCLICommandQuietly(resetConfigurationCommand);
+   }
+
+   @Test
+   public void testDeployOfWebServiceRequiringPredefinedEndpointConfigWillFailWhenPredefinedEndpointConfigIsNotDefined() throws Exception
+   {
+      deployWar(war);
+
+      assertDefaultConfigurationValue(executeCLICommand(verifyConfigurationCommand).assertSuccess());
+
+      assertOriginalConfiguration(getContextName(war));
+   }
+
+   @Test
+   public void testDefaultConfiguration() throws Exception
+   {
+      deployWar(war);
+
+      assertDefaultConfigurationValue(executeCLICommand(verifyConfigurationCommand).assertSuccess());
+
+      assertOriginalConfiguration(getContextName(war));
+   }
+
+   @Test//1BA
+   public void testChangeAffectsNewDeploymentsWithoutReload() throws Exception
+   {
+      changeConfiguration();
+
+      deployWar(war);
+
+      assertChangedConfiguration(getContextName(war));
+   }
+
+   @Test//2BA
+   public void testChangeFollowedByReloadAffectsNewDeployments() throws Exception
+   {
+      changeConfiguration();
+      reloadServer();
+
+      deployWar(war);
+
+      assertChangedConfiguration(getContextName(war));
+   }
+
+   @Test//3BA
+   public void testChangeDoesNotAffectExistingDeploymentsBeforeReload() throws Exception
+   {
+      deployWar(war);
+
+      changeConfiguration();
+
+      assertOriginalConfiguration(getContextName(war));
+
+   }
+
+   @Test//4BA
+   public void testChangeAffectsExistingDeploymentsAfterReload() throws Exception
+   {
+      deployWar(war);
+
+      changeConfiguration();
+
+      reloadServer();
+
+      assertChangedConfiguration(getContextName(war));
+   }
+
+   @Test//5BA
+   public void testChangeAffectsNewDeploymentsBeforeReloadAndExistingDeploymentsAfterReload() throws Exception
+   {
+      deployWar(war);
+
+      changeConfiguration();
+
+      deployWar(anotherWar);
+
+      assertOriginalConfiguration(getContextName(war));
+      assertChangedConfiguration(getContextName(anotherWar));
+
+      reloadServer();
+
+      assertChangedConfiguration(getContextName(war));
+      assertChangedConfiguration(getContextName(anotherWar));
+   }
+
+
+
+   protected /* FIXME psakar abstract */ void assertDefaultConfigurationValue(CLIResult result){}
+
+   protected /* FIXME psakar abstract */ void assertOriginalConfiguration(String contextName) throws UnsupportedEncodingException, IOException, MalformedURLException{}
+
+   protected /* FIXME psakar abstract */ void assertChangedConfiguration(String contextName) throws UnsupportedEncodingException, IOException, MalformedURLException{}
+
+   protected /* FIXME psakar abstract */ void assertChangedConfigurationValue(CLIResult result){}
+
+   protected /* FIXME psakar abstract */ void assertChangeConfigurationResult(CLIResult result){}
+
+
+   protected void prepareServerWithChangedConfiguration() throws IOException, CommandLineException
+   {
+      changeConfiguration();
+      reloadServer();
+   }
+
+   protected String getContextName(WebArchive war)
+   {
+      return war.getName().replace(".war", "");
+   }
+
+   private void deployWar(WebArchive war) throws IOException, CommandLineException
+   {
+      executeCLIdeploy(war).assertSuccess();
+   }
+
+   private void changeConfiguration() throws IOException, CommandLineException
+   {
+      assertChangeConfigurationResult(executeCLICommand(changeConfigurationCommand).assertSuccess());
+      assertChangedConfigurationValue(executeCLICommand(verifyConfigurationCommand).assertSuccess());
+   }
+
+   protected void assertServiceIsFunctional(String serviceURL) throws MalformedURLException
+   {
+      AnnotatedServiceIface proxy = createServiceProxy(serviceURL);
+      assertEquals(AnnotatedServiceImpl.HELLO_WORLD, proxy.sayHello());
+   }
+
+   protected AnnotatedServiceIface createServiceProxy(String serviceURL) throws MalformedURLException
+   {
+      QName serviceName = new QName("http://www.jboss.org/jbossws/ws-extensions/wssecuritypolicy", "AnnotatedSecurityService");
+      URL wsdlURL = new URL(serviceURL + "?wsdl");
+      Service service = Service.create(wsdlURL, serviceName);
+      AnnotatedServiceIface proxy = service.getPort(AnnotatedServiceIface.class);
+      return proxy;
+   }
+
+   protected String findFirstLineContaining(String searchedString, String content)
+   {
+      List<String> lines = convertToLines(content);
+      for (String line : lines)
+      {
+         if (line.contains(searchedString))
+            return line;
+      }
+      return null;
+   }
+
+   protected List<String> convertToLines(String content)
+   {
+      if (content == null)
+         return new ArrayList<String>();
+      return Arrays.asList(content.split("\n"));
+   }
+
+   protected String findSoapAddress(String wsdl)
+   {
+      return StringUtils.trim(findFirstLineContaining(SOAP_ADDRESS_LOCATION_PREFIX, wsdl));
+   }
+
+
+}
