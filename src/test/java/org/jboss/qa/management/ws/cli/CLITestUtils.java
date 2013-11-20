@@ -30,9 +30,12 @@ import org.jboss.as.cli.CommandContextFactory;
 import org.jboss.as.cli.CommandLineException;
 import org.jboss.as.controller.client.ModelControllerClient;
 import org.jboss.dmr.ModelNode;
+import org.jboss.qa.management.TestConstants;
 import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.exporter.ZipExporter;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
+import org.junit.Rule;
+import org.junit.rules.Timeout;
 
 //FIXME psakar inspect possibility to use CliClient and/or CLI.Result
 public class CLITestUtils
@@ -45,6 +48,10 @@ public class CLITestUtils
    private final int reloadWaitMillis;
    private final int startupWaitMillis;
 
+   // setting timeout for each test
+   @Rule
+   public Timeout timeout = new Timeout(readIntValueFromSystemProperties("test.timeout", TestConstants.SHORT_TEST_TIMEOUT));//FIXME remove * 1000 used for debug
+
    public CLITestUtils()
    {
      shutdownWaitMillis = readIntValueFromSystemProperties("shutdownWaitMillis", 1500);
@@ -52,13 +59,14 @@ public class CLITestUtils
      startupWaitMillis = readIntValueFromSystemProperties("startupWaitMillis", 1500);
    }
 
-   int readIntValueFromSystemProperties(String name, int defaultValue) {
+   static int readIntValueFromSystemProperties(String name, int defaultValue) {
      String value = System.getProperty(name);
      if (!(value == null || value.isEmpty())) {
        try {
          return Integer.parseInt(value);
        } catch (Exception e) {
-         error("Can not parse int value from system property " + name + " with value " + value + " " + e.getMessage(), e);
+         System.err.println("Can not parse int value from system property " + name + " with value " + value + " " + e.getMessage());
+         e.printStackTrace(System.err);
        }
      }
      return defaultValue;

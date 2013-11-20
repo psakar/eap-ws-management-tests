@@ -34,12 +34,9 @@ import javax.xml.ws.Service;
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.as.cli.CommandLineException;
-import org.jboss.qa.management.TestConstants;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.After;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.Timeout;
 import org.junit.runner.RunWith;
 
 /**
@@ -61,10 +58,6 @@ public abstract class CLITestCase extends CLITestUtils
    private final String resetConfigurationCommand;
    private final String undefineConfigurationCommand;
    private final String[] invalidValueConfigurationCommands;
-
-   // setting timeout for each test
-   @Rule
-   public Timeout timeout = new Timeout(TestConstants.SHORT_TEST_TIMEOUT * 1000);//FIXME remove * 1000 used for debug
 
    public CLITestCase(String verifyConfigurationCommand, String changeConfigurationCommand, String resetConfigurationCommand, String undefineConfigurationCommand, String [] invalidValueConfigurationCommands, WebArchive war, WebArchive anotherWar)
    {
