@@ -43,7 +43,7 @@ public class CLITestUtils
    public CLITestUtils()
    {
       shutdownWaitMillis = 2500;
-      reloadWaitMillis = 2500;
+      reloadWaitMillis = 3000;
       startupWaitMillis = 2500;
    }
 
@@ -301,7 +301,11 @@ public class CLITestUtils
       try {
          stream = url.openStream();
       } catch (ConnectException e) {
-         throw new IllegalStateException("Can not read from " + url.toString(), e);
+        throw new IllegalStateException("Can not read from " + url.toString(), e);
+      } catch (IOException e) {
+        throw new IllegalStateException("Error reading from " + url.toString(), e);
+      } finally {
+        IOUtils.closeQuietly(stream);
       }
       InputStreamReader inputStream = null;
       try {

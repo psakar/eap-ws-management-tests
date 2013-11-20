@@ -63,7 +63,7 @@ public final class CLIWebservicesModifyWsdlAddressIT extends CLITestCase
             "/subsystem=webservices/:undefine-attribute(name=modify-wsdl-address)",
             new String [] {"/subsystem=webservices/:write-attribute(name=modify-wsdl-address,value=" + MODIFY_WSDL_ADDRESS_INVALID + ")"},
             createWarDeployment(NAME + WAR_EXTENSTION).createArchive(),
-            createWarDeployment(NAME2 + WAR_EXTENSTION).createArchive()
+            createWarDeploymentWithWsdl2(NAME2 + WAR_EXTENSTION).createArchive()
             );
    }
 
@@ -83,15 +83,28 @@ public final class CLIWebservicesModifyWsdlAddressIT extends CLITestCase
    }
 
    static WarDeployment createWarDeployment(String name) {
+     return new WarDeployment(name) { {
+       archive
+          .setManifest(new StringAsset("Manifest-Version: 1.0\n"
+                + "Dependencies: org.jboss.ws.cxf.jbossws-cxf-client\n"))
+          .addClass(org.jboss.qa.management.ws.cli.AnnotatedServiceWithStaticWsdlIface.class)
+          .addClass(org.jboss.qa.management.ws.cli.AnnotatedServiceWithStaticWsdlImpl.class)
+          .addClass(org.jboss.qa.management.ws.cli.SayHello.class)
+          .addClass(org.jboss.qa.management.ws.cli.SayHelloResponse.class)
+          .addAsManifestResource(createResourcePrefix() + "endpoint.wsdl", "endpoint.wsdl")
+          ;
+    } };
+   }
+   static WarDeployment createWarDeploymentWithWsdl2(String name) {
       return new WarDeployment(name) { {
          archive
             .setManifest(new StringAsset("Manifest-Version: 1.0\n"
                   + "Dependencies: org.jboss.ws.cxf.jbossws-cxf-client\n"))
-            .addClass(org.jboss.qa.management.ws.cli.AnnotatedServiceWithStaticWsdlIface.class)
-            .addClass(org.jboss.qa.management.ws.cli.AnnotatedServiceWithStaticWsdlImpl.class)
+            .addClass(org.jboss.qa.management.ws.cli.AnnotatedServiceWithStaticWsdl2Iface.class)
+            .addClass(org.jboss.qa.management.ws.cli.AnnotatedServiceWithStaticWsdl2Impl.class)
             .addClass(org.jboss.qa.management.ws.cli.SayHello.class)
             .addClass(org.jboss.qa.management.ws.cli.SayHelloResponse.class)
-            .addAsManifestResource(createResourcePrefix() + "endpoint.wsdl", "endpoint.wsdl")
+            .addAsManifestResource(createResourcePrefix() + "endpoint2.wsdl", "endpoint2.wsdl")
             ;
       } };
    }
@@ -151,7 +164,7 @@ public final class CLIWebservicesModifyWsdlAddressIT extends CLITestCase
 
    protected void assertCorrectWsdlReturned(String wsdl, String contextName, int wsdlPort)
    {
-      assertTrue(wsdl.contains("sayHelloResponse"));
+      assertTrue("Expected wsdl contains sayHelloResponse, found following wsdl: '" + wsdl + "'", wsdl.contains("sayHelloResponse"));
       String expectedSoapAddress = SOAP_ADDRESS_LOCATION_PREFIX + createServiceURL(CLIWebservicesWsdlHostIT.WSDL_HOST, contextName, wsdlPort) + "\"/>";
       assertEquals(expectedSoapAddress, findSoapAddress(wsdl));
    }

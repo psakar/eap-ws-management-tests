@@ -28,13 +28,13 @@ import org.apache.cxf.annotations.EndpointProperties;
 @WebService(
    portName = "AnnotatedSecurityServicePort",
    serviceName = "AnnotatedSecurityService",
-   name = "AnnotatedServiceWithStaticWsdlIface",
-   endpointInterface = "org.jboss.qa.management.ws.cli.AnnotatedServiceWithStaticWsdlIface",
+   name = "AnnotatedServiceWithStaticWsdl2Iface",
+   endpointInterface = "org.jboss.qa.management.ws.cli.AnnotatedServiceWithStaticWsdl2Iface",
    targetNamespace = Constants.NAMESPACE,
-   wsdlLocation="META-INF/endpoint.wsdl"//FIXME remove when https://issues.jboss.org/browse/JBWS-3736 is fixed
+   wsdlLocation="META-INF/endpoint2.wsdl"//FIXME remove when https://issues.jboss.org/browse/JBWS-3736 is fixed
 )
 @EndpointProperties(value={})
-public class AnnotatedServiceWithStaticWsdlImpl implements AnnotatedServiceWithStaticWsdlIface
+public class AnnotatedServiceWithStaticWsdl2Impl implements AnnotatedServiceWithStaticWsdl2Iface
 {
    static final String HELLO_WORLD = "Hello World!";
 

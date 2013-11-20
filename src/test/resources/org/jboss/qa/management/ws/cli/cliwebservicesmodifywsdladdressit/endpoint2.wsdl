@@ -44,7 +44,7 @@
 	-->
 	<wsdl:service name="AnnotatedSecurityService">
 		<wsdl:port binding="tns:AnnotatedSecurityServiceSoapBinding" name="AnnotatedSecurityServicePort">
-			<soap:address location="http://localhost:8081/CLIWebservicesModifyWsdlAddressTestCase/AnnotatedSecurityService" />
+			<soap:address location="http://localhost:8081/CLIWebservicesModifyWsdlAddressTestCase2/AnnotatedSecurityService" />
 		</wsdl:port>
 	</wsdl:service>
 </wsdl:definitions>
