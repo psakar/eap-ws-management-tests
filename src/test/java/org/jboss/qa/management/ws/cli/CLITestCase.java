@@ -294,8 +294,7 @@ public abstract class CLITestCase extends CLITestUtils
       QName serviceName = new QName("http://www.jboss.org/jbossws/ws-extensions/wssecuritypolicy", "AnnotatedSecurityService");
       URL wsdlURL = new URL(serviceURL + "?wsdl");
       Service service = Service.create(wsdlURL, serviceName);
-      AnnotatedServiceIface proxy = service.getPort(AnnotatedServiceIface.class);
-      return proxy;
+      return service.getPort(AnnotatedServiceIface.class);
    }
 
 

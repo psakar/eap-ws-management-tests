@@ -42,7 +42,7 @@ import org.junit.runner.RunWith;
 @RunAsClient
 public final class CLIWebservicesWsdlIT extends CLITestUtils
 {
-   private static final int WSDL_PORT_PRECONFIGURED = 8080;
+   private static final int WSDL_PORT_PRECONFIGURED = PORT;
 
    static final String NAME = "CLIWebservicesWsdlIT";
 
@@ -77,12 +77,13 @@ public final class CLIWebservicesWsdlIT extends CLITestUtils
      deployWar(war);
      String contextName = getContextName(war);
      assertOriginalConfiguration(contextName);
-     int reloadCount = readIntValueFromSystemProperties("testWsdlIsAccessibleAfterReload.reloadCount", 10);
+     int reloadCount = readIntValueFromSystemProperties("testWsdlIsAccessibleAfterReload.reloadCount", 3);
      for (int i = 0; i < reloadCount; i++) {
        info("Reloading server - pass " + (i+1));
        reloadServer();
        info("Reloaded");
        assertOriginalConfiguration(contextName);
+       info("Asserted");
      }
    }
 
@@ -94,13 +95,14 @@ public final class CLIWebservicesWsdlIT extends CLITestUtils
 
    private URL createWsdlUrl(String name) throws MalformedURLException
    {
-      return new URL(createServiceURL(name) + "?wsdl");
+      String random = (readIntValueFromSystemProperties("appendRandomPameterToWsdlUrl", 0) == 0 ? "" : "&time=" + System.currentTimeMillis());
+      return new URL(createServiceURL(name) + "?wsdl" + random);
    }
 
 
    private String createServiceURL(String contextName)
    {
-      return createServiceURL(contextName, PORT);
+      return createServiceURL(contextName, WSDL_PORT_PRECONFIGURED);
    }
 
    private String createServiceURL(String contextName, int port)
@@ -117,7 +119,7 @@ public final class CLIWebservicesWsdlIT extends CLITestUtils
    private void assertOriginalConfiguration(String contextName) throws UnsupportedEncodingException, IOException, MalformedURLException, InterruptedException
    {
       String wsdlContent = readFromUrlToString(createWsdlUrl(contextName));
-      assertCorrectWsdlReturned(wsdlContent, contextName, WSDL_PORT_PRECONFIGURED);
+      assertCorrectWsdlReturned(wsdlContent, contextName, PORT);
       // assertServiceIsFunctional(createServiceURL(contextName, WSDL_PORT_CHANGED)); will not work with wdl_port rewritten to wrong value
    }
 

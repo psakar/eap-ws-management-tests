@@ -21,8 +21,7 @@
  */
 package org.jboss.qa.management.ws.cli;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -84,7 +83,7 @@ public final class CLIWebservicesWsdlPortIT extends CLITestCase
    @Override
    protected void assertDefaultConfigurationValue(CLIResult result)
    {
-      result.isUndefinedResult();
+     result.assertResultAsStringEquals(WSDL_PORT_UNDEFINED);
    }
 
    private String createServiceURL(String contextName)

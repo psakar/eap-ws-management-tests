@@ -21,7 +21,7 @@
  */
 package org.jboss.qa.management.ws.cli;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -108,10 +108,8 @@ public final class CLIWebservicesWsdlSecurePortIT extends CLITestCase
    protected void resetConfiguration() throws IOException, CommandLineException
    {
       super.resetConfiguration();
-      String command = "/core-service=management/security-realm=" + HTTPS_LISTENER_REALM_NAME + "/:remove";
-      executeCLICommandQuietly(command);
-      command = "/subsystem=web/connector=" + HTTPS_CONNECTOR_NAME + "/:remove";
-      executeCLICommandQuietly(command);
+      executeCLICommandQuietly("/core-service=management/security-realm=" + HTTPS_LISTENER_REALM_NAME + "/:remove");
+      executeCLICommandQuietly("/subsystem=web/connector=" + HTTPS_CONNECTOR_NAME + "/:remove");
       reloadServer();
    }
 
@@ -142,7 +140,7 @@ public final class CLIWebservicesWsdlSecurePortIT extends CLITestCase
    @Override
    protected void assertDefaultConfigurationValue(CLIResult result)
    {
-      result.isUndefinedResult();
+      result.assertIsUndefinedResult();
    }
 
    private String createServiceURL(String protocol, String contextName, int port)

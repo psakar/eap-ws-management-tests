@@ -61,7 +61,7 @@ public final class CLIWebservicesWsdlHostIT extends CLITestCase
    @Override
    protected void assertDefaultConfigurationValue(CLIResult result)
    {
-      result.assertResultAsStringEquals(WSDL_HOST_DEFAULT);
+      result.assertIsUndefinedResult();
    }
 
    private String createServiceURL(String contextName)

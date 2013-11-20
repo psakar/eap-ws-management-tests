@@ -9,7 +9,9 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.ConnectException;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -24,6 +26,11 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.util.EntityUtils;
 import org.jboss.as.cli.CliInitializationException;
 import org.jboss.as.cli.CommandContext;
 import org.jboss.as.cli.CommandContextFactory;
@@ -41,6 +48,13 @@ import org.junit.rules.Timeout;
 public class CLITestUtils
 {
 
+   private static final String KEY_STARTUP_WAIT_MILLIS = "startupWaitMillis";
+   private static final int DEFAULT_VALUE_STARTUP_WAIT_MILLIS = 1500;
+   private static final String KEY_RELOAD_WAIT_MILLIS = "reloadWaitMillis";
+   private static final int DEFAULT_VALUE_RELOAD_WAIT_MILLIS = 1000;
+   private static final String KEY_SHUTDOWN_WAIT_MILLIS = "shutdownWaitMillis";
+   private static final int DEFAULT_VALUE_SHUTDOWN_WAIT_MILLIS = 1500;
+   private static final String KEY_TEST_TIMEOUT = "test.timeout";
    public static final String WAR_EXTENSTION = ".war";
    public static final String JAR_EXTENSTION = ".jar";
    public static final String EAR_EXTENSTION = ".ear";
@@ -50,13 +64,13 @@ public class CLITestUtils
 
    // setting timeout for each test
    @Rule
-   public Timeout timeout = new Timeout(readIntValueFromSystemProperties("test.timeout", TestConstants.SHORT_TEST_TIMEOUT));//FIXME remove * 1000 used for debug
+   public Timeout timeout = new Timeout(readIntValueFromSystemProperties(KEY_TEST_TIMEOUT, TestConstants.SHORT_TEST_TIMEOUT));//FIXME remove * 1000 used for debug
 
    public CLITestUtils()
    {
-     shutdownWaitMillis = readIntValueFromSystemProperties("shutdownWaitMillis", 1500);
-     reloadWaitMillis = readIntValueFromSystemProperties("reloadWaitMillis", 4500);
-     startupWaitMillis = readIntValueFromSystemProperties("startupWaitMillis", 1500);
+     shutdownWaitMillis = readIntValueFromSystemProperties(KEY_SHUTDOWN_WAIT_MILLIS, DEFAULT_VALUE_SHUTDOWN_WAIT_MILLIS);
+     reloadWaitMillis = readIntValueFromSystemProperties(KEY_RELOAD_WAIT_MILLIS, DEFAULT_VALUE_RELOAD_WAIT_MILLIS);
+     startupWaitMillis = readIntValueFromSystemProperties(KEY_STARTUP_WAIT_MILLIS, DEFAULT_VALUE_STARTUP_WAIT_MILLIS);
    }
 
    static int readIntValueFromSystemProperties(String name, int defaultValue) {
@@ -318,7 +332,7 @@ public class CLITestUtils
       {
          assertEquals(expected, result.get("result").asString());
       }
-      public void isUndefinedResult()
+      public void assertIsUndefinedResult()
       {
          assertFalse("Expected undefined value, found " + result.asString(), result.get("result").isDefined());
       }
@@ -330,21 +344,37 @@ public class CLITestUtils
       return readFromUrlToString(url, "UTF-8");
    }
 
-   public static String readFromUrlToString(URL url, String encoding) throws UnsupportedEncodingException, IOException
+   public static String readFromUrlToString(final URL url, String encoding) throws UnsupportedEncodingException, IOException
    {
       InputStream stream = null;
       InputStreamReader inputStream = null;
+      URLConnection connection = null;
+      HttpClient client = null;
       try {
-         stream = url.openStream();
+        if (readIntValueFromSystemProperties("readUrlDirectly", 1) == 0) {
+          client = new DefaultHttpClient();
+          HttpGet get = new HttpGet(url.toURI());
+          HttpResponse response = client.execute(get);
+          return EntityUtils.toString(response.getEntity());
+        } else {
+         connection = url.openConnection();
+         stream = connection.getInputStream();
          inputStream = new InputStreamReader(stream, encoding);
          return IOUtils.toString(inputStream);
+        }
+      } catch (URISyntaxException e) {
+        throw new IllegalStateException("Can not read from " + url.toString() + " " + e.getMessage(), e);
       } catch (ConnectException e) {
         throw new IllegalStateException("Can not read from " + url.toString() + " " + e.getMessage(), e);
       } catch (IOException e) {
+
         throw new IllegalStateException("Error reading from " + url.toString() + " " + e.getMessage(), e);
       } finally {
+        IOUtils.close(connection); //has to be closed first, otherwise the connection is pooled and reused !!!!
         IOUtils.closeQuietly(inputStream);
         IOUtils.closeQuietly(stream);
+        if (client != null)
+          client.getConnectionManager().shutdown();
       }
    }
 
