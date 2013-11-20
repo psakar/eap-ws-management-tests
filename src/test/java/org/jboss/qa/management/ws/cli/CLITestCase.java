@@ -27,14 +27,10 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 import javax.xml.namespace.QName;
 import javax.xml.ws.Service;
 
-import org.apache.commons.lang.StringUtils;
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.as.cli.CommandLineException;
@@ -57,9 +53,8 @@ import org.junit.runner.RunWith;
 public abstract class CLITestCase extends CLITestUtils
 {
 
-   protected static final String SOAP_ADDRESS_LOCATION_PREFIX = "<soap:address location=\"";
-   private final WebArchive war;
-   private final WebArchive anotherWar;
+   final WebArchive war;
+   final WebArchive anotherWar;
 
    private final String verifyConfigurationCommand;
    private final String changeConfigurationCommand;
@@ -264,7 +259,7 @@ public abstract class CLITestCase extends CLITestUtils
 
    protected abstract void assertDefaultConfigurationValue(CLIResult result);
 
-   protected abstract void assertOriginalConfiguration(String contextName) throws UnsupportedEncodingException, IOException, MalformedURLException;
+   protected abstract void assertOriginalConfiguration(String contextName) throws UnsupportedEncodingException, IOException, MalformedURLException, InterruptedException;
 
    protected abstract void assertUndefinedConfiguration(String contextName) throws UnsupportedEncodingException, IOException, MalformedURLException;
 
@@ -281,16 +276,6 @@ public abstract class CLITestCase extends CLITestUtils
    {
       changeConfiguration();
       reloadServer();
-   }
-
-   protected String getContextName(WebArchive war)
-   {
-      return war.getName().replace(".war", "");
-   }
-
-   private void deployWar(WebArchive war) throws IOException, CommandLineException
-   {
-      executeCLIdeploy(war).assertSuccess();
    }
 
    private void changeConfiguration() throws IOException, CommandLineException
@@ -320,28 +305,6 @@ public abstract class CLITestCase extends CLITestUtils
       return proxy;
    }
 
-   protected String findFirstLineContaining(String searchedString, String content)
-   {
-      List<String> lines = convertToLines(content);
-      for (String line : lines)
-      {
-         if (line.contains(searchedString))
-            return line;
-      }
-      return null;
-   }
-
-   protected List<String> convertToLines(String content)
-   {
-      if (content == null)
-         return new ArrayList<String>();
-      return Arrays.asList(content.split("\n"));
-   }
-
-   protected String findSoapAddress(String wsdl)
-   {
-      return StringUtils.trim(findFirstLineContaining(SOAP_ADDRESS_LOCATION_PREFIX, wsdl));
-   }
 
 
 }

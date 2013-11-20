@@ -21,20 +21,16 @@
  */
 package org.jboss.qa.management.ws.cli;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 import javax.xml.namespace.QName;
 import javax.xml.ws.Service;
 
-import org.apache.commons.lang.StringUtils;
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.as.cli.CommandLineException;
@@ -219,16 +215,6 @@ public /*FIXME psakar abstract*/ class CLIWebServicesEndPointConfigIT extends CL
       reloadServer();
    }
 
-   protected String getContextName(WebArchive war)
-   {
-      return war.getName().replace(".war", "");
-   }
-
-   private void deployWar(WebArchive war) throws IOException, CommandLineException
-   {
-      executeCLIdeploy(war).assertSuccess();
-   }
-
    private void changeConfiguration() throws IOException, CommandLineException
    {
       assertChangeConfigurationResult(executeCLICommand(changeConfigurationCommand).assertSuccess());
@@ -249,29 +235,5 @@ public /*FIXME psakar abstract*/ class CLIWebServicesEndPointConfigIT extends CL
       AnnotatedServiceIface proxy = service.getPort(AnnotatedServiceIface.class);
       return proxy;
    }
-
-   protected String findFirstLineContaining(String searchedString, String content)
-   {
-      List<String> lines = convertToLines(content);
-      for (String line : lines)
-      {
-         if (line.contains(searchedString))
-            return line;
-      }
-      return null;
-   }
-
-   protected List<String> convertToLines(String content)
-   {
-      if (content == null)
-         return new ArrayList<String>();
-      return Arrays.asList(content.split("\n"));
-   }
-
-   protected String findSoapAddress(String wsdl)
-   {
-      return StringUtils.trim(findFirstLineContaining(SOAP_ADDRESS_LOCATION_PREFIX, wsdl));
-   }
-
 
 }

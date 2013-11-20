@@ -56,43 +56,19 @@
 
     <dependencies>
 
-        <!-- jboss-client.jar (added because of JmsUtils.java -->
-        <!--
-        <dependency>
-            <groupId>org.jboss.as</groupId>
-            <artifactId>jboss-as-client</artifactId>
-            <version>${eap.version}</version>
-        </dependency>
-		-->
-
-        <dependency>
-            <groupId>javax.servlet.jsp</groupId>
-            <artifactId>jsp-api</artifactId>
-            <version>2.0</version>
-        </dependency>
-
-        <dependency>
-            <groupId>javax</groupId>
-            <artifactId>javaee-api</artifactId>
-            <version>6.0</version>
-        </dependency>
 
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
             <version>${commons-io.version}</version>
+            <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
             <version>${org.apache.httpcomponents.httpclient.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.github.lookfirst</groupId>
-            <artifactId>sardine</artifactId>
-            <version>${sardine.version}</version>
+            <scope>test</scope>
         </dependency>
 
         <!-- test frameworks -->
@@ -100,34 +76,6 @@
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>${junit.version}</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.testng</groupId>
-            <artifactId>testng</artifactId>
-            <version>${testng.version}</version>
-            <scope>test</scope>
-        </dependency>
-
-        <!-- testNG reporting dependencies -->
-        <dependency>
-            <groupId>org.uncommons</groupId>
-            <artifactId>reportng</artifactId>
-            <version>${reportng.version}</version>
-            <scope>test</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.testng</groupId>
-                    <artifactId>testng</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
-        <dependency>
-            <groupId>com.google.inject</groupId>
-            <artifactId>guice</artifactId>
-            <version>3.0</version>
             <scope>test</scope>
         </dependency>
 
@@ -156,6 +104,7 @@
             <groupId>org.jboss.as</groupId>
             <artifactId>jboss-as-arquillian-container-managed</artifactId>
             <version>${org.jboss.as.jboss-as-arquillian-container-managed.version}</version>
+            <scope>test</scope>
         </dependency>
 
         <!-- AS CLI -->
@@ -163,6 +112,7 @@
             <groupId>org.jboss.as</groupId>
             <artifactId>jboss-as-cli</artifactId>
             <version>${eap.brew.version}</version>
+            <scope>test</scope>
         </dependency>
 
 
@@ -202,106 +152,6 @@
     </dependencies>
     <profiles>
         <profile>
-            <id>manual</id>
-            <activation>
-                <property>
-                    <name>!noManualTest</name>
-                </property>
-            </activation>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-failsafe-plugin</artifactId>
-                        <version>${failsafe.version}</version>
-                        <executions>
-                            <execution>
-                                <id>manual-junit</id>
-                                <goals>
-                                    <goal>integration-test</goal>
-                                    <goal>verify</goal>
-                                </goals>
-                                <configuration>
-                                    <includes>
-                                        <include>**/manual/*TestCaseManual.java</include>
-                                        <include>**/manual/*ITManual.java</include>
-                                    </includes>
-                                    <systemProperties>
-                                        <property>
-                                            <name>arquillian.launch</name>
-                                            <value>jboss-manual</value>
-                                        </property>
-                                        <property>
-                                            <name>jboss.home</name>
-                                            <value>${jboss.home}</value>
-                                        </property>
-                                        <property>
-                                            <name>java.util.logging.config.file</name>
-                                            <value>${project.build.testOutputDirectory}/logging.properties</value>
-                                        </property>
-                                        <property>
-                                            <name>jboss.cli.config</name>
-                                            <value>${project.build.outputDirectory}/jboss-cli.xml</value>
-                                        </property>
-                                    </systemProperties>
-                                    <redirectTestOutputToFile>${testLogToFile}</redirectTestOutputToFile>
-                                    <reportsDirectory>${basedir}/target/failsafe-reports/junit</reportsDirectory>
-                                    <failIfNoSpecifiedTests>false</failIfNoSpecifiedTests>
-                                    <testNGArtifactName>none:none</testNGArtifactName>
-                                </configuration>
-                            </execution>
-                            <execution>
-                                <id>manual-testng</id>
-                                <goals>
-                                    <goal>integration-test</goal>
-                                    <goal>verify</goal>
-                                </goals>
-                                <configuration>
-                                    <includes>
-                                        <include>**/manual/*TestCaseManual.java</include>
-                                        <include>**/manual/*ITManual.java</include>
-                                    </includes>
-                                    <systemProperties>
-                                        <property>
-                                            <name>arquillian.launch</name>
-                                            <value>jboss-manual</value>
-                                        </property>
-                                        <property>
-                                            <name>jboss.home</name>
-                                            <value>${jboss.home}</value>
-                                        </property>
-                                        <property>
-                                            <name>java.util.logging.config.file</name>
-                                            <value>${project.build.testOutputDirectory}/logging.properties</value>
-                                        </property>
-                                        <property>
-                                            <name>jboss.cli.config</name>
-                                            <value>${project.build.outputDirectory}/jboss-cli.xml</value>
-                                        </property>
-                                    </systemProperties>
-                                    <properties>
-                                        <property>
-                                            <name>org.uncommons.reportng.escape-output</name>
-                                            <value>true</value>
-                                        </property>
-                                        <property>
-                                            <name>listener</name>
-                                            <value>org.uncommons.reportng.HTMLReporter,org.uncommons.reportng.JUnitXMLReporter</value>
-                                        </property>
-                                    </properties>
-                                    <workingDirectory>target/</workingDirectory>
-                                    <redirectTestOutputToFile>${testLogToFile}</redirectTestOutputToFile>
-                                    <reportsDirectory>${basedir}/target/failsafe-reports/testng-manual</reportsDirectory>
-                                    <failIfNoSpecifiedTests>false</failIfNoSpecifiedTests>
-                                    <junitArtifactName>none:none</junitArtifactName>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-        <profile>
             <id>managed</id>
             <activation>
                 <property>
@@ -316,90 +166,18 @@
                         <version>${failsafe.version}</version>
                         <executions>
                             <execution>
-                                <id>managed-junit</id>
+                                <id>integration-test</id>
                                 <goals>
                                     <goal>integration-test</goal>
                                     <goal>verify</goal>
                                 </goals>
                                 <configuration>
                                     <includes>
-                                        <include>**/*TestCase.java</include>
                                         <include>**/*IT.java</include>
                                     </includes>
                                     <excludes combine.children="append">
                                     <!--<exclude>**/manual/*TestCase.java</exclude>-->
                                     </excludes>
-                                    <systemProperties>
-                                        <property>
-                                            <name>arquillian.launch</name>
-                                            <value>jboss</value>
-                                        </property>
-                                        <property>
-                                            <name>jboss.home</name>
-                                            <value>${jboss.home}</value>
-                                        </property>
-                                        <property>
-                                            <name>java.util.logging.config.file</name>
-                                            <value>${project.build.testOutputDirectory}/logging.properties</value>
-                                        </property>
-                                        <property>
-                                            <name>jboss.cli.config</name>
-                                            <value>${project.build.outputDirectory}/jboss-cli.xml</value>
-                                        </property>
-                                    </systemProperties>
-                                    <redirectTestOutputToFile>${testLogToFile}</redirectTestOutputToFile>
-                                    <reportsDirectory>${basedir}/target/failsafe-reports/junit</reportsDirectory>
-                                    <failIfNoSpecifiedTests>false</failIfNoSpecifiedTests>
-                                    <testNGArtifactName>none:none</testNGArtifactName>
-                                </configuration>
-                            </execution>
-                            <execution>
-                                <id>managed-testng</id>
-                                <goals>
-                                    <goal>integration-test</goal>
-                                    <goal>verify</goal>
-                                </goals>
-                                <configuration>
-                                    <includes>
-                                        <include>**/*TestCase.java</include>
-                                        <include>**/*IT.java</include>
-                                    </includes>
-                                    <excludes combine.children="append">
-                                        <!--<exclude>**/manual/*TestCase.java</exclude>-->
-                                    </excludes>
-                                    <systemProperties>
-                                        <property>
-                                            <name>arquillian.launch</name>
-                                            <value>jboss</value>
-                                        </property>
-                                        <property>
-                                            <name>jboss.home</name>
-                                            <value>${jboss.home}</value>
-                                        </property>
-                                        <property>
-                                            <name>java.util.logging.config.file</name>
-                                            <value>${project.build.testOutputDirectory}/logging.properties</value>
-                                        </property>
-                                        <property>
-                                            <name>jboss.cli.config</name>
-                                            <value>${project.build.outputDirectory}/jboss-cli.xml</value>
-                                        </property>
-                                    </systemProperties>
-                                    <properties>
-                                        <property>
-                                            <name>org.uncommons.reportng.escape-output</name>
-                                            <value>true</value>
-                                        </property>
-                                        <property>
-                                            <name>listener</name>
-                                            <value>org.uncommons.reportng.HTMLReporter, org.uncommons.reportng.JUnitXMLReporter</value>
-                                        </property>
-                                    </properties>
-                                    <workingDirectory>target/</workingDirectory>
-                                    <redirectTestOutputToFile>${testLogToFile}</redirectTestOutputToFile>
-                                    <reportsDirectory>${basedir}/target/failsafe-reports/testng</reportsDirectory>
-                                    <failIfNoSpecifiedTests>false</failIfNoSpecifiedTests>
-                                    <junitArtifactName>none:none</junitArtifactName>
                                 </configuration>
                             </execution>
                         </executions>
@@ -463,43 +241,6 @@
 	      </build>
 	    </profile>
         <!-- END OF web services specific -->
-		<profile>
-			<!-- exclude integrations tests which are known to fail for EAP 6.2.0-->
-			<id>exclude-integration-tests-known-failures-6.2.0</id>
-			<activation>
-				<property>
-					<name>exclude-integration-tests-known-failures-6.2.0</name>
-				</property>
-			</activation>
-			<build>
-				<plugins>
-					<plugin>
-						<artifactId>maven-failsafe-plugin</artifactId>
-						<configuration>
-							<excludes combine.children="append">
-								<!-- see https://bugzilla.redhat.com/show_bug.cgi?id=1007484 CLI - undefine operation on wsdl-host attribute of webservices subsystem results in reload required but affects existing deployments immediately -->
-								<exclude>org/jboss/qa/management/ws/cli/CLIWebservicesWsdlHostIT.java</exclude>
-								<!-- see https://bugzilla.redhat.com/show_bug.cgi?id=996558 Https connection hangs after adding https connector -->
-								<exclude>org/jboss/qa/management/ws/cli/CLIWebservicesWsdlSecurePortIT.java</exclude>
-								<!-- waiting for developers to review if change is visible after reload or immediately -->
-                                <exclude>org/jboss/qa/management/ws/cli/CLIWebservicesModifyWsdlAddressIT.java</exclude>
-                                <!-- see https://bugzilla.redhat.com/show_bug.cgi?id=999961 Reload is not defined as required even though it is in order to apply changes -->
-                                <exclude>org/jboss/qa/management/web/RewriteConditionIT.java</exclude>
-
-                                <!-- see https://bugzilla.redhat.com/show_bug.cgi?id=999961 Reload is not defined as required even though it is in order to apply changes -->
-                                <exclude>org/jboss/qa/management/web/RewriteConditionIT.java</exclude>
-
-                                <!-- see https://bugzilla.redhat.com/show_bug.cgi?id=984434 Welcome-file defined in web subsystem is used only if there is no index.{htm,html,jsp} -->
-                                <exclude>org/jboss/qa/management/web/WelcomeFileIT.java</exclude>
-
-                                <!-- see https://bugzilla.redhat.com/show_bug.cgi?id=1005186 Unable to undefine attribute enable-welcome-root for virtual server via CLI -->
-                                <exclude>org/jboss/qa/management/web/VirtualServerAttributesIT.java</exclude>
-							</excludes>
-						</configuration>
-					</plugin>
-				</plugins>
-		     </build>
-		</profile>
         <profile>
             <id>download-eap-from-maven-repo</id>
             <activation>

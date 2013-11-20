@@ -10,6 +10,9 @@ import java.io.UnsupportedEncodingException;
 import java.net.ConnectException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -20,6 +23,7 @@ import javax.xml.ws.WebServiceException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.jboss.as.cli.CliInitializationException;
 import org.jboss.as.cli.CommandContext;
 import org.jboss.as.cli.CommandContextFactory;
@@ -28,6 +32,7 @@ import org.jboss.as.controller.client.ModelControllerClient;
 import org.jboss.dmr.ModelNode;
 import org.jboss.shrinkwrap.api.Archive;
 import org.jboss.shrinkwrap.api.exporter.ZipExporter;
+import org.jboss.shrinkwrap.api.spec.WebArchive;
 
 //FIXME psakar inspect possibility to use CliClient and/or CLI.Result
 public class CLITestUtils
@@ -42,9 +47,21 @@ public class CLITestUtils
 
    public CLITestUtils()
    {
-      shutdownWaitMillis = 2500;
-      reloadWaitMillis = 3000;
-      startupWaitMillis = 2500;
+     shutdownWaitMillis = readIntValueFromSystemProperties("shutdownWaitMillis", 1500);
+     reloadWaitMillis = readIntValueFromSystemProperties("reloadWaitMillis", 4500);
+     startupWaitMillis = readIntValueFromSystemProperties("startupWaitMillis", 1500);
+   }
+
+   int readIntValueFromSystemProperties(String name, int defaultValue) {
+     String value = System.getProperty(name);
+     if (!(value == null || value.isEmpty())) {
+       try {
+         return Integer.parseInt(value);
+       } catch (Exception e) {
+         error("Can not parse int value from system property " + name + " with value " + value + " " + e.getMessage(), e);
+       }
+     }
+     return defaultValue;
    }
 
    public void assertServiceIsNotAvailable(String serviceURL) throws MalformedURLException
@@ -111,6 +128,16 @@ public class CLITestUtils
    public void error(String message, Exception e)
    {
       getLogger().log(Level.SEVERE, message, e);
+   }
+
+   void deployWar(WebArchive war) throws IOException, CommandLineException
+   {
+      executeCLIdeploy(war).assertSuccess();
+   }
+
+   protected String getContextName(WebArchive war)
+   {
+      return war.getName().replace(".war", "");
    }
 
    public CLIResult executeCLICommand(String command) throws IOException, CommandLineException
@@ -298,23 +325,44 @@ public class CLITestUtils
    public static String readFromUrlToString(URL url, String encoding) throws UnsupportedEncodingException, IOException
    {
       InputStream stream = null;
-      try {
-         stream = url.openStream();
-      } catch (ConnectException e) {
-        throw new IllegalStateException("Can not read from " + url.toString(), e);
-      } catch (IOException e) {
-        throw new IllegalStateException("Error reading from " + url.toString(), e);
-      } finally {
-        IOUtils.closeQuietly(stream);
-      }
       InputStreamReader inputStream = null;
       try {
+         stream = url.openStream();
          inputStream = new InputStreamReader(stream, encoding);
          return IOUtils.toString(inputStream);
+      } catch (ConnectException e) {
+        throw new IllegalStateException("Can not read from " + url.toString() + " " + e.getMessage(), e);
+      } catch (IOException e) {
+        throw new IllegalStateException("Error reading from " + url.toString() + " " + e.getMessage(), e);
       } finally {
-         IOUtils.closeQuietly(inputStream);
+        IOUtils.closeQuietly(inputStream);
+        IOUtils.closeQuietly(stream);
       }
    }
 
+   protected String findFirstLineContaining(String searchedString, String content)
+   {
+      List<String> lines = convertToLines(content);
+      for (String line : lines)
+      {
+         if (line.contains(searchedString))
+            return line;
+      }
+      return null;
+   }
+
+   protected List<String> convertToLines(String content)
+   {
+      if (content == null)
+         return new ArrayList<String>();
+      return Arrays.asList(content.split("\n"));
+   }
+
+   protected static final String SOAP_ADDRESS_LOCATION_PREFIX = "<soap:address location=\"";
+
+   protected String findSoapAddress(String wsdl)
+   {
+      return StringUtils.trim(findFirstLineContaining(SOAP_ADDRESS_LOCATION_PREFIX, wsdl));
+   }
 
 }

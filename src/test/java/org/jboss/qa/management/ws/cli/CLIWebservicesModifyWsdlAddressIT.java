@@ -33,6 +33,7 @@ import org.jboss.qa.management.ws.BaseDeployment.WarDeployment;
 import org.jboss.shrinkwrap.api.asset.StringAsset;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Test;
 
 /**
  * see https://docspace.corp.redhat.com/docs/DOC-152480
@@ -142,9 +143,10 @@ public final class CLIWebservicesModifyWsdlAddressIT extends CLITestCase
 
 
    @Override
-   protected void assertOriginalConfiguration(String contextName) throws UnsupportedEncodingException, IOException, MalformedURLException
+   protected void assertOriginalConfiguration(String contextName) throws UnsupportedEncodingException, IOException, MalformedURLException, InterruptedException
    {
-      assertCorrectWsdlReturned(readFromUrlToString(createWsdlUrl(contextName)), contextName, WSDL_PORT_PRECONFIGURED);
+      String wsdlContent = readFromUrlToString(createWsdlUrl(contextName));
+      assertCorrectWsdlReturned(wsdlContent, contextName, WSDL_PORT_PRECONFIGURED);
       // assertServiceIsFunctional(createServiceURL(contextName, WSDL_PORT_CHANGED)); will not work with wdl_port rewritten to wrong value
    }
 
@@ -185,5 +187,20 @@ public final class CLIWebservicesModifyWsdlAddressIT extends CLITestCase
    protected void assertUndefinedConfigurationValue(CLIResult result)
    {
       result.assertResultAsStringEquals(MODIFY_WSDL_ADDRESS_UNDEFINED);
+   }
+
+   @Test
+   public void testWsdlIsAccessibleAfterReload() throws Exception {
+     deployWar(war);
+     String contextName = getContextName(war);
+     assertOriginalConfiguration(contextName);
+     int reloadCount = readIntValueFromSystemProperties("testWsdlIsAccessibleAfterReload.reloadCount", 10);
+     for (int i = 0; i < reloadCount; i++) {
+       info("Reloading server - pass " + (i+1));
+       reloadServer();
+       info("Reloaded");
+       assertOriginalConfiguration(contextName);
+     }
+
    }
 }
