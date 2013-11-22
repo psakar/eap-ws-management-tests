@@ -31,7 +31,7 @@ import org.apache.cxf.annotations.EndpointProperties;
    name = "AnnotatedServiceWithStaticWsdlIface",
    endpointInterface = "org.jboss.qa.management.ws.cli.AnnotatedServiceWithStaticWsdlIface",
    targetNamespace = Constants.NAMESPACE,
-   wsdlLocation="META-INF/endpoint.wsdl"//FIXME remove when https://issues.jboss.org/browse/JBWS-3736 is fixed
+   wsdlLocation="META-INF/endpoint.wsdl"//FIXME psakar remove when https://issues.jboss.org/browse/JBWS-3736 is fixed
 )
 @EndpointProperties(value={})
 public class AnnotatedServiceWithStaticWsdlImpl implements AnnotatedServiceWithStaticWsdlIface

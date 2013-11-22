@@ -38,7 +38,7 @@ public final class CLIWebservicesWsdlHostIT extends CLITestCase
    static final String WSDL_HOST = "localhost";
    private static final String WSDL_HOST_DEFAULT = "${jboss.bind.address:127.0.0.1}";//
    private static final String WSDL_HOST_CHANGED = "test.domain.com";
-   private static final String WSDL_HOST_INVALID = "invalid host";
+   private static final String WSDL_HOST_INVALID = "invalid host";//WSDL_HOST_CHANGED; // FIXME psakar - return back when https://bugzilla.redhat.com/show_bug.cgi?id=1031590 is fixed //"invalid host";
    private static final String WSDL_HOST_UNDEFINED = "undefined";
 
    public CLIWebservicesWsdlHostIT()
@@ -61,7 +61,7 @@ public final class CLIWebservicesWsdlHostIT extends CLITestCase
    @Override
    protected void assertDefaultConfigurationValue(CLIResult result)
    {
-      result.assertIsUndefinedResult();
+      result.assertResultAsStringEquals(WSDL_HOST_DEFAULT);
    }
 
    private String createServiceURL(String contextName)
@@ -83,14 +83,16 @@ public final class CLIWebservicesWsdlHostIT extends CLITestCase
    protected void assertOriginalConfiguration(String contextName) throws UnsupportedEncodingException, IOException, MalformedURLException
    {
       assertCorrectWsdlReturned(readFromUrlToString(createWsdlUrl(contextName)), contextName, WSDL_HOST);
-      assertServiceIsFunctional(createServiceURL(contextName));
+      if (testIfServiceIsFunctional())
+        assertServiceIsFunctional(createServiceURL(contextName));
    }
 
    @Override
    protected void assertUndefinedConfiguration(String contextName) throws UnsupportedEncodingException, IOException, MalformedURLException
    {
       assertCorrectWsdlReturned(readFromUrlToString(createWsdlUrl(contextName)), contextName, WSDL_HOST);
-      assertServiceIsFunctional(createServiceURL(contextName));
+      if (testIfServiceIsFunctional())
+        assertServiceIsFunctional(createServiceURL(contextName));
    }
 
    @Override

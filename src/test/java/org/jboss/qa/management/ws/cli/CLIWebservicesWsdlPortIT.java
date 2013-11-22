@@ -101,14 +101,16 @@ public final class CLIWebservicesWsdlPortIT extends CLITestCase
    protected void assertOriginalConfiguration(String contextName) throws UnsupportedEncodingException, IOException, MalformedURLException
    {
       assertCorrectWsdlReturned(readFromUrlToString(createWsdlUrl(contextName)), contextName, WSDL_PORT);
-      assertServiceIsFunctional(createServiceURL(contextName));
+      if (testIfServiceIsFunctional())
+        assertServiceIsFunctional(createServiceURL(contextName));
    }
 
    @Override
    protected void assertUndefinedConfiguration(String contextName) throws UnsupportedEncodingException, IOException, MalformedURLException
    {
       assertCorrectWsdlReturned(readFromUrlToString(createWsdlUrl(contextName)), contextName, WSDL_PORT);
-      assertServiceIsFunctional(createServiceURL(contextName));
+      if (testIfServiceIsFunctional())
+        assertServiceIsFunctional(createServiceURL(contextName));
    }
 
 
@@ -123,7 +125,8 @@ public final class CLIWebservicesWsdlPortIT extends CLITestCase
    protected void assertChangedConfiguration(String contextName) throws UnsupportedEncodingException, IOException, MalformedURLException
    {
       assertCorrectWsdlReturned(readFromUrlToString(createWsdlUrl(contextName)), contextName, WSDL_PORT_CHANGED);
-      // assertServiceIsFunctional(createServiceURL(contextName, WSDL_PORT_CHANGED)); will not work with wdl_port rewritten to new value
+      //if (testIfServiceIsFunctional())
+      //  assertServiceIsFunctional(createServiceURL(contextName, WSDL_PORT_CHANGED)); will not work with wdl_port rewritten to new value
    }
 
 

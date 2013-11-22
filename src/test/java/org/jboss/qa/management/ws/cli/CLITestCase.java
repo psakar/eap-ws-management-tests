@@ -297,6 +297,10 @@ public abstract class CLITestCase extends CLITestUtils
       return service.getPort(AnnotatedServiceIface.class);
    }
 
+  protected boolean testIfServiceIsFunctional() {
+      return readIntValueFromSystemProperties("testIfServiceIsFunctional", 0) == 1;
+   }
+
 
 
 }

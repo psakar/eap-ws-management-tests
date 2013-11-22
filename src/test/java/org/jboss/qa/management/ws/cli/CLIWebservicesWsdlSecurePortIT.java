@@ -127,9 +127,9 @@ public final class CLIWebservicesWsdlSecurePortIT extends CLITestCase
       assertTrue(keystoreFile.exists());
       command = "/subsystem=web/connector=" + HTTPS_CONNECTOR_NAME
             + "/ssl=configuration:add(password=\"changeit\",certificate-key-file=\"" + keystoreFile.getAbsolutePath()
-            + "\",verify-client=false, key-alias=tomcat, protocol=https)";
+            + "\",verify-client=false, key-alias=tomcat, protocol=https) {allow-resource-service-restart=true}";
       executeCLICommand(command).assertSuccess();
-      temporaryFixForBZ996558();
+      //temporaryFixForBZ996558();
    }
 
    private URL createWsdlUrl(String protocol, String name, int wsdlPort) throws MalformedURLException
@@ -155,7 +155,8 @@ public final class CLIWebservicesWsdlSecurePortIT extends CLITestCase
    {
       assertCorrectWsdlReturned(readFromUrlToString(createWsdlUrl(PROTOCOL_HTTPS, contextName, SSL_PORT)), PROTOCOL_HTTPS,
             contextName, SSL_PORT);
-      assertServiceIsFunctional(createServiceURL(PROTOCOL_HTTPS, contextName, SSL_PORT));
+      if (testIfServiceIsFunctional())
+        assertServiceIsFunctional(createServiceURL(PROTOCOL_HTTPS, contextName, SSL_PORT));
    }
 
    @Override
@@ -164,7 +165,8 @@ public final class CLIWebservicesWsdlSecurePortIT extends CLITestCase
    {
       assertCorrectWsdlReturned(readFromUrlToString(createWsdlUrl(PROTOCOL_HTTPS, contextName, SSL_PORT)), PROTOCOL_HTTPS,
             contextName, SSL_PORT);
-      assertServiceIsFunctional(createServiceURL(PROTOCOL_HTTPS, contextName, SSL_PORT));
+      if (testIfServiceIsFunctional())
+        assertServiceIsFunctional(createServiceURL(PROTOCOL_HTTPS, contextName, SSL_PORT));
    }
 
    private void assertCorrectWsdlReturned(String wsdl, String protocol, String contextName, int wsdlPort)

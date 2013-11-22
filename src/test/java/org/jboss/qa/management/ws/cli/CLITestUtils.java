@@ -54,7 +54,7 @@ public class CLITestUtils
    private static final int DEFAULT_VALUE_RELOAD_WAIT_MILLIS = 1000;
    private static final String KEY_SHUTDOWN_WAIT_MILLIS = "shutdownWaitMillis";
    private static final int DEFAULT_VALUE_SHUTDOWN_WAIT_MILLIS = 1500;
-   private static final String KEY_TEST_TIMEOUT = "test.timeout";
+   private static final String KEY_TEST_TIMEOUT = "test.timeoutMillis";
    public static final String WAR_EXTENSTION = ".war";
    public static final String JAR_EXTENSTION = ".jar";
    public static final String EAR_EXTENSTION = ".ear";
@@ -64,7 +64,7 @@ public class CLITestUtils
 
    // setting timeout for each test
    @Rule
-   public Timeout timeout = new Timeout(readIntValueFromSystemProperties(KEY_TEST_TIMEOUT, TestConstants.SHORT_TEST_TIMEOUT));//FIXME remove * 1000 used for debug
+   public Timeout timeout = new Timeout(readIntValueFromSystemProperties(KEY_TEST_TIMEOUT, TestConstants.SHORT_TEST_TIMEOUT));
 
    public CLITestUtils()
    {
@@ -275,12 +275,11 @@ public class CLITestUtils
       }
    }
 
-   //remove when //https://bugzilla.redhat.com/show_bug.cgi?id=996558
+   /*remove when //https://bugzilla.redhat.com/show_bug.cgi?id=996558
    protected void temporaryFixForBZ996558() throws IOException, CommandLineException {
-      if (System.getProperty("BZ996558") != null)
-         reloadServer();
+      //reloadServer();
    }
-
+*/
    protected void reloadServer() throws IOException, CommandLineException
    {
       executeCLIReload().assertSuccess();
