@@ -65,6 +65,7 @@ public final class CLIWebservicesWsdlIT extends CLITestUtils
 
    public CLIWebservicesWsdlIT() {
      war = createWarDeployment(NAME + WAR_EXTENSTION).createArchive();
+     info("system property http.keepAlive is " + System.getProperty("http.keepAlive"));
    }
 
    @After

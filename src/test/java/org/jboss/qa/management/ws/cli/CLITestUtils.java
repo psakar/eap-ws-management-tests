@@ -9,7 +9,6 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.ConnectException;
 import java.net.MalformedURLException;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
@@ -345,35 +344,40 @@ public class CLITestUtils
 
    public static String readFromUrlToString(final URL url, String encoding) throws UnsupportedEncodingException, IOException
    {
+      HttpClient client = null;
+      if (readIntValueFromSystemProperties("readUrlDirectly", 1) == 0)
+        try {
+            client = new DefaultHttpClient();
+            HttpGet get = new HttpGet(url.toURI());
+            HttpResponse response = client.execute(get);
+            return EntityUtils.toString(response.getEntity());
+        } catch (Exception e) {
+          throw new IllegalStateException("Error reading from " + url.toString() + " " + e.getMessage(), e);
+        } finally {
+          if (client != null)
+            client.getConnectionManager().shutdown();
+        }
+
       InputStream stream = null;
       InputStreamReader inputStream = null;
       URLConnection connection = null;
-      HttpClient client = null;
+
       try {
-        if (readIntValueFromSystemProperties("readUrlDirectly", 1) == 0) {
-          client = new DefaultHttpClient();
-          HttpGet get = new HttpGet(url.toURI());
-          HttpResponse response = client.execute(get);
-          return EntityUtils.toString(response.getEntity());
-        } else {
          connection = url.openConnection();
          stream = connection.getInputStream();
          inputStream = new InputStreamReader(stream, encoding);
          return IOUtils.toString(inputStream);
-        }
-      } catch (URISyntaxException e) {
-        throw new IllegalStateException("Can not read from " + url.toString() + " " + e.getMessage(), e);
       } catch (ConnectException e) {
         throw new IllegalStateException("Can not read from " + url.toString() + " " + e.getMessage(), e);
       } catch (IOException e) {
-
         throw new IllegalStateException("Error reading from " + url.toString() + " " + e.getMessage(), e);
       } finally {
-        IOUtils.close(connection); //has to be closed first, otherwise the connection is pooled and reused !!!!
-        IOUtils.closeQuietly(inputStream);
-        IOUtils.closeQuietly(stream);
-        if (client != null)
-          client.getConnectionManager().shutdown();
+        if (readIntValueFromSystemProperties("disconnectURLconnection", 1) == 1)
+          IOUtils.close(connection); //has to be closed first, otherwise the connection is pooled and reused !!!!
+        if (readIntValueFromSystemProperties("closeURLstream", 1) == 1) {
+          IOUtils.closeQuietly(inputStream);
+          IOUtils.closeQuietly(stream);
+        }
       }
    }
 

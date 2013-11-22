@@ -23,3 +23,20 @@ To change test timeout
 To test if WS is functional
 	
 	-DtestIfServiceIsFunctional=1
+	
+	
+To see failures related to connection pooling run
+
+    mvn clean verify -Dit.test=CLIWebservicesWsdlIT -Djboss.home=/home/development/jbossqe/JBEAP-6.2.0.CR3/build/jboss-eap-6.2 -DreloadWaitMillis=1000 -DdisconnectURLconnection=0 2>&1 | tee log.txt
+    
+To see how failures related to connection pooling are solved by setting system property "http.keepAlive" to false
+
+    mvn clean verify -Dit.test=CLIWebservicesWsdlIT -Djboss.home=/home/development/jbossqe/JBEAP-6.2.0.CR3/build/jboss-eap-6.2 -DreloadWaitMillis=1000 -DtestIfServiceIsFunctional=0 -DdisconnectURLconnection=0 -Dhttp.keepAlive=false 2>&1 | tee log.txt    
+
+To see failures related to connection pooling are solved by closing connection, not by closing stream
+
+    mvn clean verify -Dit.test=CLIWebservicesWsdlIT -Djboss.home=/home/development/jbossqe/JBEAP-6.2.0.CR3/build/jboss-eap-6.2 -DreloadWaitMillis=1000 -DtestIfServiceIsFunctional=0 -DdisconnectURLconnection=0 -DcloseURLstream=1 2>&1 | tee log.txt
+
+To see how failures related to connection pooling are solved by setting system property "http.keepAlive" to false even neither stream or connection are closed
+
+    mvn clean verify -Dit.test=CLIWebservicesWsdlIT -Djboss.home=/home/development/jbossqe/JBEAP-6.2.0.CR3/build/jboss-eap-6.2 -DreloadWaitMillis=1000 -DtestIfServiceIsFunctional=0 -DdisconnectURLconnection=0 -DcloseURLstream=0 -Dhttp.keepAlive=false 2>&1 | tee log.txt    
