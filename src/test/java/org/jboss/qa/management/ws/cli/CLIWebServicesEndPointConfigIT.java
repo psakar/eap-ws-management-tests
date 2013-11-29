@@ -122,6 +122,14 @@ public class CLIWebServicesEndPointConfigIT extends CLITestUtils {
   }
 
   @Test
+  public void testPredefinedEndpointConfigIsAppliedWrong() throws Exception {
+    addWrongEndpointConfigAndReloadServer();
+    deployWar(war);
+    assertEndpointConfigApplied();
+  }
+
+
+  @Test
   public void testPredefinedEndpointConfigIsAppliedAfterConfigurationChangeBeforeServerReload() throws Exception {
     addEndpointConfigAndReloadServer();
     deployWar(war);
@@ -166,11 +174,16 @@ public class CLIWebServicesEndPointConfigIT extends CLITestUtils {
   }
 
   private void addEndpointConfigAndReloadServer() throws Exception {
-    addEndpointConfig();
+    addEndpointConfig(LogicalSourceHandler.class.getName());
     reloadServer();
   }
 
-  private void addEndpointConfig() throws Exception {
+  private void addWrongEndpointConfigAndReloadServer() throws Exception {
+    addEndpointConfig("wrong class blabla");
+    reloadServer();
+  }
+
+  private void addEndpointConfig(String handlerClass) throws Exception {
     String endpointConfingName = Constants.ENDPOINT_CONFIG_NAME;
     String createEndpointConfigCLIcommand = "/subsystem=webservices/endpoint-config=" + endpointConfingName + "/:add";
     executeAssertedCLICommand(createEndpointConfigCLIcommand);
@@ -179,7 +192,6 @@ public class CLIWebServicesEndPointConfigIT extends CLITestUtils {
     String addPostHandlerChainCLIcommand = "/subsystem=webservices/endpoint-config=" + endpointConfingName + "/post-handler-chain=" + handlerChainName + ":add(protocol-bindings=\"" + handlerChainProtocols + "\")";
     executeAssertedCLICommand(addPostHandlerChainCLIcommand);
     String handlerName = "test-handler";
-    String handlerClass = LogicalSourceHandler.class.getName();
     String addHandlerToChainCLIcommand = "/subsystem=webservices/endpoint-config=" + endpointConfingName + "/post-handler-chain=" + handlerChainName + "/handler=" + handlerName + ":add(class=\"" + handlerClass + "\")";
     executeAssertedCLICommand(addHandlerToChainCLIcommand);
   }
