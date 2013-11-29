@@ -44,7 +44,7 @@ public final class CLIWebservicesWsdlIT extends CLITestUtils
 {
    private static final int WSDL_PORT_PRECONFIGURED = PORT;
 
-   static final String NAME = "CLIWebservicesWsdlIT";
+   private static final String NAME = "CLIWebservicesWsdlIT";
 
    final WebArchive war;
 

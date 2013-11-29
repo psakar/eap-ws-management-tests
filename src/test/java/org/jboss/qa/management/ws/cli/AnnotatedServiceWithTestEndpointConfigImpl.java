@@ -25,15 +25,9 @@ import javax.jws.WebService;
 
 import org.jboss.ws.api.annotation.EndpointConfig;
 
-@WebService(
-   portName = "AnnotatedServiceWithMyEndpointPort",
-   serviceName = "AnnotatedServiceWithMyEndpoint",
-   name = "AnnotatedServiceWithMyEndpointIface",
-   endpointInterface = "org.jboss.qa.management.ws.cli.AnnotatedServiceWithMyEndpointConfigIface",
-   targetNamespace = Constants.NAMESPACE
-)
-@EndpointConfig(configName = "My-Endpoint-Config2")
-public class AnnotatedServiceWithMyEndpointConfigImpl implements AnnotatedServiceWithMyEndpointConfigIface
+@WebService (serviceName = Constants.SERVICE_NAME_ENDPOINT_CONFIG_TEST, targetNamespace = Constants.NAMESPACE)
+@EndpointConfig(configName = Constants.ENDPOINT_CONFIG_NAME)
+public class AnnotatedServiceWithTestEndpointConfigImpl implements AnnotatedServiceWithTestEndpointConfigIface
 {
    static final String HELLO_WORLD = "Hello World!";
 
@@ -41,5 +35,11 @@ public class AnnotatedServiceWithMyEndpointConfigImpl implements AnnotatedServic
    public String sayHello()
    {
       return HELLO_WORLD;
+   }
+
+   @Override
+   public String say(String message)
+   {
+      return message;
    }
 }

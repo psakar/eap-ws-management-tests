@@ -21,15 +21,28 @@
  */
 package org.jboss.qa.management.ws.cli;
 
-import javax.jws.WebMethod;
 import javax.jws.WebService;
 
-@WebService
-(
+import org.jboss.ws.api.annotation.EndpointConfig;
+
+@WebService(
+   serviceName = Constants.SERVICE_NAME_ENDPOINT_CONFIG_TEST,
    targetNamespace = Constants.NAMESPACE
 )
-public interface AnnotatedServiceWithMyEndpointConfigIface
+@EndpointConfig(configName = Constants.ENDPOINT_CONFIG_NAME + "unexisting")
+public class AnnotatedServiceWithUnexistingEndpointConfigImpl implements AnnotatedServiceWithTestEndpointConfigIface
 {
-   @WebMethod
-   String sayHello();
+   static final String HELLO_WORLD = "Hello World!";
+
+   @Override
+   public String sayHello()
+   {
+      return HELLO_WORLD;
+   }
+
+   @Override
+   public String say(String message)
+   {
+      return message;
+   }
 }

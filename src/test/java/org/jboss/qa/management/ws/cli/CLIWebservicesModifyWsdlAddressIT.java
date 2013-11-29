@@ -52,8 +52,8 @@ public final class CLIWebservicesModifyWsdlAddressIT extends CLITestCase
    private static final int WSDL_PORT_PRECONFIGURED = 8084;
    private static final int WSDL_PORT_SPECIFIED_IN_WSDL = 8081;
 
-   static final String NAME = "CLIWebservicesModifyWsdlAddressTestCase";
-   static final String NAME2 = "CLIWebservicesModifyWsdlAddressTestCase2";
+   private static final String NAME = "CLIWebservicesModifyWsdlAddressTestCase";
+   private static final String NAME2 = "CLIWebservicesModifyWsdlAddressTestCase2";
 
    public CLIWebservicesModifyWsdlAddressIT()
    {
@@ -78,7 +78,7 @@ public final class CLIWebservicesModifyWsdlAddressIT extends CLITestCase
    @After
    public void after() throws Exception
    {
-      executeCLICommandQuietly("/subsystem=webservices/:write-attribute(name=wsdl-port,value=" + WSDL_PORT_DEFAULT + ")");
+      executeCLICommandQuietly(CLIWebservicesWsdlPortIT.RESET_CONFIGURATION_CLI_COMMAND);
       super.after();
    }
 

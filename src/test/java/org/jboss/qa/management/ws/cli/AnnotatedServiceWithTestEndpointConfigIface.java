@@ -21,27 +21,18 @@
  */
 package org.jboss.qa.management.ws.cli;
 
+import javax.jws.WebMethod;
 import javax.jws.WebService;
 
-import org.apache.cxf.annotations.EndpointProperties;
-
-@WebService(
-   portName = "AnnotatedSecurityServicePort",
-   serviceName = "AnnotatedSecurityService",
-   name = "AnnotatedServiceWithStaticWsdlIface",
-   endpointInterface = "org.jboss.qa.management.ws.cli.AnnotatedServiceWithStaticWsdlIface",
-   targetNamespace = Constants.NAMESPACE,
-   wsdlLocation="META-INF/endpoint.wsdl"//FIXME psakar remove when https://issues.jboss.org/browse/JBWS-3736 is fixed
+@WebService
+(
+   targetNamespace = Constants.NAMESPACE
 )
-@EndpointProperties(value={})
-public class AnnotatedServiceWithStaticWsdlImpl implements AnnotatedServiceWithStaticWsdlIface
+public interface AnnotatedServiceWithTestEndpointConfigIface
 {
-   static final String HELLO_WORLD = "Hello World!";
+   @WebMethod
+   String sayHello();
 
-   @Override
-   public String sayHello()
-   {
-      return HELLO_WORLD;
-   }
-
+   @WebMethod
+   String say(String message);
 }

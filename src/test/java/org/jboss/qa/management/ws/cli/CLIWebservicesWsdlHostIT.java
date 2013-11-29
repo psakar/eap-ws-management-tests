@@ -21,7 +21,7 @@
  */
 package org.jboss.qa.management.ws.cli;
 
-import static org.jboss.qa.management.ws.cli.CLIWebservicesWsdlPortIT.*;
+//import static org.jboss.qa.management.ws.cli.CLIWebservicesWsdlPortIT.*;
 import static org.junit.Assert.*;
 
 import java.io.IOException;
@@ -35,6 +35,9 @@ import java.net.URL;
  */
 public final class CLIWebservicesWsdlHostIT extends CLITestCase
 {
+  private static final String NAME = "CLIWebservicesWsdlHostIT";
+  private static final String NAME2 = "CLIWebservicesWsdlHostIT2";
+
    static final String WSDL_HOST = "localhost";
    private static final String WSDL_HOST_DEFAULT = "${jboss.bind.address:127.0.0.1}";//
    private static final String WSDL_HOST_CHANGED = "test.domain.com";
@@ -48,8 +51,8 @@ public final class CLIWebservicesWsdlHostIT extends CLITestCase
             "/subsystem=webservices/:write-attribute(name=wsdl-host,value=\"" + WSDL_HOST_DEFAULT + "\")",
             "/subsystem=webservices/:undefine-attribute(name=wsdl-host)",
             new String [] {"/subsystem=webservices/:write-attribute(name=wsdl-host,value=" + WSDL_HOST_INVALID + ")"},
-            createWarDeployment(NAME + WAR_EXTENSTION).createArchive(),
-            createWarDeployment(NAME2 + WAR_EXTENSTION).createArchive()
+            CLIWebservicesWsdlPortIT.createWarDeployment(NAME + WAR_EXTENSTION).createArchive(),
+            CLIWebservicesWsdlPortIT.createWarDeployment(NAME2 + WAR_EXTENSTION).createArchive()
             );
    }
 
@@ -66,11 +69,7 @@ public final class CLIWebservicesWsdlHostIT extends CLITestCase
 
    private String createServiceURL(String contextName)
    {
-      return createServiceURL(contextName, PORT);
-   }
-   private String createServiceURL(String contextName, int port)
-   {
-      return createServiceURL("localhost", contextName, port); ///*JBossWSTestHelper.getServerHost()*/
+      return createServiceURL("localhost", contextName, CLIWebservicesWsdlPortIT.PORT); ///*JBossWSTestHelper.getServerHost()*/
    }
 
    String createServiceURL(String wsdlHost, String contextName, int port)
@@ -105,7 +104,7 @@ public final class CLIWebservicesWsdlHostIT extends CLITestCase
    protected void assertCorrectWsdlReturned(String wsdl, String contextName, String wsdlHost)
    {
       assertTrue(wsdl.contains("sayHelloResponse"));
-      String expectedSoapAddress = SOAP_ADDRESS_LOCATION_PREFIX + createServiceURL(wsdlHost, contextName, WSDL_PORT) + "\"/>";
+      String expectedSoapAddress = SOAP_ADDRESS_LOCATION_PREFIX + createServiceURL(wsdlHost, contextName, CLIWebservicesWsdlPortIT.WSDL_PORT) + "\"/>";
       assertEquals(expectedSoapAddress, findSoapAddress(wsdl));
    }
 

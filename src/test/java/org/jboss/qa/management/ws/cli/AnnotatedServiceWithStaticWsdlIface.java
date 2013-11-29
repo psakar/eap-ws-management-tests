@@ -33,4 +33,5 @@ public interface AnnotatedServiceWithStaticWsdlIface
 {
    @WebMethod
    String sayHello();
+
 }

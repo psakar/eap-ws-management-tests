@@ -37,15 +37,17 @@ import org.jboss.shrinkwrap.api.asset.StringAsset;
  */
 public final class CLIWebservicesWsdlPortIT extends CLITestCase
 {
-   static final int PORT = 8080;
+  private static final String UNDEFINE_CONFIGURATION_CLI_COMMAND = "/subsystem=webservices/:undefine-attribute(name=wsdl-port)";
+   static final String RESET_CONFIGURATION_CLI_COMMAND = UNDEFINE_CONFIGURATION_CLI_COMMAND;
+  static final int PORT = 8080;
    static final int WSDL_PORT = PORT;
    static final int WSDL_PORT_CHANGED = 8084;
    private static final String WSDL_PORT_UNDEFINED = "undefined";
    private static final String WSDL_PORT_INVALID = "invalid";
    private static final int WSDL_PORT_INVALID_2 = -1;
 
-   static final String NAME = "CLIWebservicesWsdlPortTestCase";
-   static final String NAME2 = "CLIWebservicesWsdlPortTestCase2";
+   private static final String NAME = "CLIWebservicesWsdlPortIT";
+   private static final String NAME2 = "CLIWebservicesWsdlPortIT2";
 
 
    static WarDeployment createWarDeployment(String name) {
@@ -65,8 +67,8 @@ public final class CLIWebservicesWsdlPortIT extends CLITestCase
    {
       super("/subsystem=webservices/:read-attribute(name=wsdl-port)",
             "/subsystem=webservices/:write-attribute(name=wsdl-port,value=" + WSDL_PORT_CHANGED + ")",
-            "/subsystem=webservices/:undefine-attribute(name=wsdl-port)",
-            "/subsystem=webservices/:undefine-attribute(name=wsdl-port)",
+            RESET_CONFIGURATION_CLI_COMMAND,
+            UNDEFINE_CONFIGURATION_CLI_COMMAND,
             new String [] {"/subsystem=webservices/:write-attribute(name=wsdl-port,value=" + WSDL_PORT_INVALID + ")",
                "/subsystem=webservices/:write-attribute(name=wsdl-port,value=" + WSDL_PORT_INVALID_2 + ")"
             },

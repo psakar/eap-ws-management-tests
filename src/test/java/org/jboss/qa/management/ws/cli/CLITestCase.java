@@ -291,7 +291,7 @@ public abstract class CLITestCase extends CLITestUtils
 
    protected AnnotatedServiceIface createServiceProxy(String serviceURL) throws MalformedURLException
    {
-      QName serviceName = new QName("http://www.jboss.org/jbossws/ws-extensions/wssecuritypolicy", "AnnotatedSecurityService");
+      QName serviceName = new QName(Constants.NAMESPACE, "AnnotatedSecurityService");
       URL wsdlURL = new URL(serviceURL + "?wsdl");
       Service service = Service.create(wsdlURL, serviceName);
       return service.getPort(AnnotatedServiceIface.class);

@@ -293,9 +293,13 @@ public class CLITestUtils
          this.result = result;
       }
 
+      public CLIResult assertFailure(String message) {
+        assertFalse("Expected result failure, was " + result + message, result.asString().contains("\"outcome\" => \"success\""));
+        return this;
+      }
+
       public CLIResult assertFailure() {
-         assertFalse("Expected result failure, was " + result, result.asString().contains("\"outcome\" => \"success\""));
-         return this;
+         return assertFailure("");
       }
 
       public CLIResult assertSuccess() {

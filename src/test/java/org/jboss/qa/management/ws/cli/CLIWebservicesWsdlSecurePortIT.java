@@ -51,8 +51,8 @@ public final class CLIWebservicesWsdlSecurePortIT extends CLITestCase
    private static final String WSDL_PORT_HTTPS_UNDEFINED = "undefined";
    private static final String WSDL_PORT_HTTPS_INVALID = "invalid";
    private static final int WSDL_PORT_HTTPS_INVALID_2 = -1;
-   static final String NAME = "CLIWebservicesWsdlSecuredPortTestCase";
-   static final String NAME2 = "CLIWebservicesWsdlSecuredPortTestCase2";
+   private static final String NAME = "CLIWebservicesWsdlSecurePortIT";
+   private static final String NAME2 = "CLIWebservicesWsdlSecurePortIT2";
    private static final String HTTPS_CONNECTOR_NAME = "jbossws-cli-tests-https-connector";
    private static final String HTTPS_LISTENER_REALM_NAME = "jbossws-cli-tests-https-realm";
 
