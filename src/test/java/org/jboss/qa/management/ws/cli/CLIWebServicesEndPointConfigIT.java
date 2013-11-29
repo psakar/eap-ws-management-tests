@@ -122,10 +122,9 @@ public class CLIWebServicesEndPointConfigIT extends CLITestUtils {
   }
 
   @Test
-  public void testPredefinedEndpointConfigIsAppliedWrong() throws Exception {
+  public void testDeployOfWebServiceRequiringPredefinedEndpointConfigWillFailWhenPredefinedEndpointConfigIsWrong() throws Exception {
     addWrongEndpointConfigAndReloadServer();
-    deployWar(war);
-    assertEndpointConfigApplied();
+    executeCLIdeploy(anotherWar).assertFailure(" see https://bugzilla.redhat.com/show_bug.cgi?id=1029762");
   }
 
 
