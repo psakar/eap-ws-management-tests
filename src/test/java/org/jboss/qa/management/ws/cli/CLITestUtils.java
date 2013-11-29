@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.ConnectException;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
@@ -365,7 +366,6 @@ public class CLITestUtils
       InputStream stream = null;
       InputStreamReader inputStream = null;
       URLConnection connection = null;
-
       try {
          connection = url.openConnection();
          stream = connection.getInputStream();
@@ -374,6 +374,12 @@ public class CLITestUtils
       } catch (ConnectException e) {
         throw new IllegalStateException("Can not read from " + url.toString() + " " + e.getMessage(), e);
       } catch (IOException e) {
+        if (e.getMessage().startsWith("Server returned HTTP response code: 500") && readIntValueFromSystemProperties("retryReadFromURLconnection", 1) == 1) {
+          ((HttpURLConnection)connection).disconnect();
+          System.err.println("Retrying readFromUrlToString(" + url + ", " + encoding + ")");
+          e.printStackTrace(System.err);
+          return readFromUrlToString(url, encoding);
+        }
         throw new IllegalStateException("Error reading from " + url.toString() + " " + e.getMessage(), e);
       } finally {
         if (readIntValueFromSystemProperties("disconnectURLconnection", 1) == 1)
