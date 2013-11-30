@@ -21,24 +21,17 @@
  */
 package org.jboss.qa.management.ws.cli;
 
-import org.jboss.qa.management.TestConstants;
 import org.jboss.qa.management.ws.BaseDeployment.WarDeployment;
 import org.jboss.shrinkwrap.api.asset.StringAsset;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.After;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.Timeout;
 
 public final class DeployAfterReloadIT extends CLITestUtils
 {
 
    private static final String NAME = "CLIWebservicesWsdlPortTestCase";
    private static final String WAR_NAME = NAME + WAR_EXTENSTION;
-
-   // setting timeout for each test
-   @Rule
-   public Timeout timeout = new Timeout(TestConstants.DEFAULT_TEST_TIMEOUT);
 
 
    private static WarDeployment createWarDeployment(String name)

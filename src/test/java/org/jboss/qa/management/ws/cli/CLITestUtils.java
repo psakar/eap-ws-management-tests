@@ -64,7 +64,7 @@ public class CLITestUtils
 
    // setting timeout for each test
    @Rule
-   public Timeout timeout = new Timeout(readIntValueFromSystemProperties(KEY_TEST_TIMEOUT, TestConstants.SHORT_TEST_TIMEOUT));
+   public Timeout timeout = new Timeout(readIntValueFromSystemProperties(KEY_TEST_TIMEOUT, TestConstants.DEFAULT_TEST_TIMEOUT));
 
    public CLITestUtils()
    {
@@ -84,6 +84,11 @@ public class CLITestUtils
        }
      }
      return defaultValue;
+   }
+
+   static String readStringValueFromSystemProperties(String name, String defaultValue) {
+     String value = System.getProperty(name);
+     return value == null ? defaultValue : value;
    }
 
    public void assertServiceIsNotAvailable(String serviceURL) throws MalformedURLException

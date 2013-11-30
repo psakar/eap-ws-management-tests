@@ -59,9 +59,9 @@ public abstract class BaseDeployment<T extends org.jboss.shrinkwrap.api.Archive<
 
    public static abstract class JarDeployment extends BaseDeployment<JavaArchive>
    {
-      public JarDeployment()
+      public JarDeployment(String name)
       {
-         super(JavaArchive.class);
+         super(JavaArchive.class, name);
       }
    }
 }
