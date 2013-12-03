@@ -28,7 +28,7 @@ import org.junit.runner.RunWith;
 
 @RunWith(Arquillian.class)
 @RunAsClient
-public class ReloadIT extends CLITestUtils {
+public class CliOOMEIT extends CLITestUtils {
 
 
   @Test
