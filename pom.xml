@@ -24,8 +24,8 @@
         <surefire.version>2.15</surefire.version>
         <arquillian.bom.version>1.1.1.Final</arquillian.bom.version>
         <jboss.overwrite-existing>false</jboss.overwrite-existing>
-        <eap.version>6.2.0.ER7</eap.version>
-        <eap.brew.version>7.3.0.Final-redhat-10</eap.brew.version>
+        <eap.version>6.3.0.DR4</eap.version>
+        <eap.brew.version>7.4.0.Final-redhat-4</eap.brew.version>
 
         <org.jboss.as.jboss-as-arquillian-container-managed.version>7.2.0.Final</org.jboss.as.jboss-as-arquillian-container-managed.version>
 
@@ -33,11 +33,11 @@
         <org.apache.httpcomponents.httpclient.version>4.2.5</org.apache.httpcomponents.httpclient.version>
         <sardine.version>5.0.1</sardine.version>
         <!-- web services specific -->
-		<jbossws-cxf.version>4.2.2.Final-redhat-2</jbossws-cxf.version>
-		<jbossws-common-tools.version>1.2.0.Final-redhat-2</jbossws-common-tools.version>
+        <jbossws-cxf.version>4.3.0.CR2</jbossws-cxf.version>
+        <jbossws-common-tools.version>1.2.0.Final-redhat-2</jbossws-common-tools.version>
         <!-- END OF web services specific -->
 
-        <jboss.home>${project.basedir}/target/jboss-eap-6.2</jboss.home>
+        <jboss.home>${project.basedir}/target/jboss-eap-6.3</jboss.home>
 
         <testLogToFile>false</testLogToFile>
     </properties>

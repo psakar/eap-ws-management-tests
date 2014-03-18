@@ -40,6 +40,15 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /**
+
+1. Change in behaviour of operations changing value of web-service subsystem attributes wsdl-host, wsdl-port, wsdl-secure-port, modify-wsdl-address
+
+If you modify the attributes when there's no endpoint deployed and the server is not in state reload-required, the change is applied immediately, no reload is required.
+If there's is currently deployement with endpoint, and attribute value is changed, server reload is required. The reload is required even when all deployments with endpoints are undepoyed (once the reload is required, it has to be done).
+(if you then undeploy the endpoint and do not reload, the attribute which could not be changed without reload still can not be changed without reload)
+
+If the reload is required and new deployment is done, it will use the old values before change.
+
  *
  * see https://docspace.corp.redhat.com/docs/DOC-152480
  *
@@ -97,6 +106,8 @@ public abstract class CLITestCase extends CLITestUtils
    @Test//1BA
    public void testChangeRequiringReloadDoesNotAffectNewDeploymentBeforeReload() throws Exception
    {
+      deployWar(anotherWar);
+
       changeConfiguration();
 
       deployWar(war);
@@ -175,6 +186,8 @@ public abstract class CLITestCase extends CLITestUtils
    public void testChangeToUndefinedDoesNotAffectNewDeploymentsWithoutReload() throws Exception
    {
       prepareServerWithChangedConfiguration();
+
+      deployWar(anotherWar);
 
       changeConfigurationUndefine();
 

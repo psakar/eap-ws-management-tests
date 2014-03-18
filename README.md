@@ -44,3 +44,26 @@ To see how failures related to connection pooling are solved by setting system p
 To see failures related to connection pooling caused by creating web service from WSDL
 
     mvn clean verify -Djboss.home=/home/development/jbossqe/JBEAP-6.2.0.CR3/jboss-eap-6.2-fixed -DretryReadFromURLconnection=0 2>&1 | tee log.txt
+
+
+
+Changes in EAP 6.3.0 compared to EAP 6.2.0 
+------------------------------------------
+1. Change in behaviour of operations changing value of web-service subsystem attributes wsdl-host, wsdl-port, wsdl-secure-port, modify-wsdl-address
+
+If you modify the attributes when there's no endpoint deployed and the server is not in state reload-required, the change is applied immediately, no reload is required.
+If there's is currently deployement with endpoint, and attribute value is changed, server reload is required. The reload is required even when all deployments with endpoints are undepoyed (once the reload is required, it has to be done).
+(if you then undeploy the endpoint and do not reload, the attribute which could not be changed without reload still can not be changed without reload)
+
+If the reload is required and new deployment is done, it will use the old values before change.
+
+2. Changes in operations related to adding / removing predifined endpoint configs
+
+Deployment with endpoint requiring predefined endpoint configuration will fail, if the predefined endpoint configuration does not exist. In EAP 6.2 deployment was successfull
+
+
+
+
+
+
+
